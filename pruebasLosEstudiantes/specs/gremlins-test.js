@@ -1,4 +1,3 @@
-var fs = require('fs');
 
 function loadScript(callback) {
   var s = document.createElement('script');
@@ -12,13 +11,13 @@ function loadScript(callback) {
 }
 
 function unleashGremlins(ttl, callback) {
-  function stop() {
-    horde.stop();
-    callback();
+  function getRandomSeed() {
+    return Math.floor(Math.random() * (9999 - 1000) + 1000);
   }
 
-  function getRandomSeed() {
-    return Math.random() * (9999 - 1000) + 1000;
+  function stop(horde, callback) {
+    horde.stop();
+    callback();
   }
   
   function getClickerGremlin() {
@@ -48,23 +47,41 @@ function unleashGremlins(ttl, callback) {
   
   function setStrategy(horde) {
     horde.strategy(
-      window.gremlins.strategies.distribution().distribution([0.45, 0.45, 0.1])
+      window.gremlins.strategies.distribution().distribution([0.6, 0.3, 0.1])
     );
   }
   
-  function getGremlinsHorde() {
-    var horde = window.gremlins.createHorde()
+  function getGremlinsHorde(seed) {
+    console.log('This execution was generated with the following seed: ' + seed);
+    var customLogger = {
+      log: function(msg) {
+        console.log('LOG: ' + msg);
+      },
+      info: function(msg) {
+        console.log('INFO: ' + msg);
+      },
+      warn: function(msg) {
+        console.log('WARN: ' + msg);
+      },
+      error: function(msg) {
+        console.log('ERROR: ' + msg);
+      }
+    };
+
+    var horde = window.gremlins.createHorde();
     setGremlinsAndMogwais(horde);
     setStrategy(horde);
-    horde.seed(getRandomSeed());
+    horde.seed(seed);
+    horde.logger(customLogger);
     return horde;
   }
+
+  var seed = getRandomSeed();
+
+  horde = getGremlinsHorde(seed);
   
-  horde = getGremlinsHorde();
-  
-  horde.after(callback);
   window.onbeforeunload = stop;
-  setTimeout(stop, ttl);
+  setTimeout(stop, ttl, horde, callback);
   horde.unleash();
 }
 
@@ -73,18 +90,18 @@ describe('Monkey testing with gremlins ', function() {
     browser.url('/');
     browser.click('button=Cerrar');
 
-    browser.timeoutsAsyncScript(60000);
+    browser.timeouts('script', 60000);
     browser.executeAsync(loadScript);
 
-    browser.timeoutsAsyncScript(100000);
-    browser.executeAsync(unleashGremlins, 10000);
-  });
-
-  afterAll(function() {
-    console.log("EEEEEEEEEEEEEEEEEEEEEEEEEEEEEENNNNNNNNNNNNNNNNNNNNNNNTRAAAAAAAAAAAAAAA");
-    browser.log('browser').value.forEach(function(log) {
-      browser.logger.info(log.message.split(' ')[2]);
-    });
+    browser.timeouts('script', 100000);
+    browser.executeAsync(unleashGremlins, 2000);
   });
 });
 
+afterAll(function() {
+  var fs = require('fs');
+  var stream = fs.createWriteStream('./reports/report' + new Date().getTime() + '.txt', { flags : 'w' });
+  browser.log('browser').value.forEach(function(log) {
+    stream.write(log.message + '\t' + log.source + '\n');
+  });
+});
