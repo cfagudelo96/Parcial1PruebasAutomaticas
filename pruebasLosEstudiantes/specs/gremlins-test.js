@@ -42,7 +42,8 @@ function unleashGremlins(ttl, callback) {
       .gremlin(getFormFillerGremlin())
       .gremlin(window.gremlins.species.scroller())
       .mogwai(window.gremlins.mogwais.alert())
-      .mogwai(window.gremlins.mogwais.fps());
+      .mogwai(window.gremlins.mogwais.fps())
+      .mogwai(window.gremlins.mogwais.gizmo().maxErrors(2));
   }
   
   function setStrategy(horde) {
@@ -54,17 +55,17 @@ function unleashGremlins(ttl, callback) {
   function getGremlinsHorde(seed) {
     console.log('This execution was generated with the following seed: ' + seed);
     var customLogger = {
-      log: function(msg) {
-        console.log('LOG: ' + msg);
+      log: function(msg, species) {
+        console.log('LOG (' + species + '): ' + msg);
       },
-      info: function(msg) {
-        console.log('INFO: ' + msg);
+      info: function(msg, species) {
+        console.log('INFO (' + species + '): ' + msg);
       },
-      warn: function(msg) {
-        console.log('WARN: ' + msg);
+      warn: function(msg, species) {
+        console.log('WARN (' + species + '): ' + msg);
       },
-      error: function(msg) {
-        console.log('ERROR: ' + msg);
+      error: function(msg, species) {
+        console.log('ERROR (' + species + '): ' + msg);
       }
     };
 
@@ -93,8 +94,8 @@ describe('Monkey testing with gremlins ', function() {
     browser.timeouts('script', 60000);
     browser.executeAsync(loadScript);
 
-    browser.timeouts('script', 100000);
-    browser.executeAsync(unleashGremlins, 2000);
+    browser.timeouts('script', 1000000);
+    browser.executeAsync(unleashGremlins, 20000);
   });
 });
 
