@@ -49,6 +49,14 @@ defineSupportCode(({Given, When, Then}) => {
     browser.waitForVisible('.usrImage.fa.fa-user-circle.fa-2x', 5000);
   });
 
+  When(/^I search for a teacher with name (.*)$/, (name) => {
+    var searchBox = browser.element('div.Select-control input');
+    searchBox.click();
+    browser.pause(500);
+    searchBox.keys(name);
+    browser.pause(500);
+  });
+
   When(/^I fill with (.*) and (.*)$/ , (email, password) => {
     var cajaLogIn = browser.element('.cajaLogIn');
 
@@ -87,15 +95,42 @@ defineSupportCode(({Given, When, Then}) => {
     aceptaCheckbox.click();
   });
 
-  Then('I expect to see {string}', error => {
+  When('I click a teacher\'s link', () => {
+    browser.element('.profesor a').click();
+    browser.pause(500);
+  });
+
+  When(/^I click the button containing text (.*)$/, (text) => {
+    browser.click('button=' + text);
+    browser.pause(500);
+  });
+
+  When(/^I pick option with value (.*) in select with id (.*)$/, (value, id) => {
+    const select = browser.element('#' + id);
+    select.selectByValue('someValue3');
+  });
+
+  Then(/^I expect to see (.*)$/, error => {
     browser.waitForVisible('.aviso.alert.alert-danger', 5000);
     var alertText = browser.element('.aviso.alert.alert-danger').getText();
     expect(alertText).to.include(error);
   });
 
-  Then('I expect to see sweetalert with {string}', error => {
+  Then(/^I expect to see sweetalert with (.*)$/, error => {
     browser.waitForVisible('.sweet-alert', 50000);
     var alertText = browser.element('.text-muted.lead').element('div').getText();
     expect(alertText).to.include(error);
+  });
+
+  Then('I see a teacher\'s basic info', () => {
+    browser.waitForVisible('.profesor', 5000);
+  });
+
+  Then('I see a teacher\'s page', () => {
+    browser.waitForVisible('.nombreProfesor', 5000);
+  });
+
+  Then(/^I see the teacher (.*) basic info$/, (teacher) => {
+    browser.getText('div*=' + teacher);
   });
 });

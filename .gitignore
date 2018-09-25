@@ -5,6 +5,8 @@
 
 *.apk
 
+screenshot*.png
+
 # Logs
 logs
 *.log
