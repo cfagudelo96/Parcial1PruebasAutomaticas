@@ -1,6 +1,10 @@
 **/errorShots/*
 **/reports/*.txt
 
+**/.idea
+
+*.apk
+
 # Logs
 logs
 *.log
